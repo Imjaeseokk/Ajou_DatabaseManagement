@@ -7,20 +7,10 @@ body {
     background-color: #fff;
     color: #333;
     margin: 0 auto;
-    
-
 }
 
 .container {
     background: #E4ECFA;
-    /* padding: 20px;
-    border-left: 2px solid #ddd; 
-    border-right: 2px solid #ddd;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    text-align: center;
-    width: 50%; 
-    max-width: 800px; 
-    border-radius: 10px;  */
 }
 
 h1 {
@@ -53,7 +43,6 @@ h5 {
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 1em;
-    move-hover: -4px;
 }
 
 .region-button {
@@ -67,37 +56,40 @@ h5 {
     font-size: 1em;
 }
 
-.table-button:hover, .table-button.active, 
+.table-button:hover, .table-button.active {
+    background-color: #173898;
+}
+
 .region-button:hover, .region-button.active {
-    background-color: #0056b3;
+    background-color: #000000;
 }
 
 .fetch-button {
     padding: 10px 20px;
     background-color: #fff;
-    color: #275efe;
+    color: #000000;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 1em;
-    justify-content: center;
 }
 
 .fetch-button:hover {
-    background-color: #218838;
+    background-color: #cccccc;
 }
 
-#results {
+#results, #dust-results {
     margin-top: 20px;
     text-align: left;
 }
 
+/* 공통 테이블 스타일 */
 table {
+    font-size: 0.8em; /* 폰트 크기 줄이기 */
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    font-size: 4.4em; /* 폰트 크기 줄이기 */
 }
 
 th, td {

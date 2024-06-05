@@ -24,6 +24,12 @@
 
                 const result = await response.json();
                 displayData(result.columns, result.data);
+                
+                if (table_name === 'Regional_Health_Institutions_Status') {
+                    document.getElementById('operation-time-form').style.display = 'block';
+                } else {
+                    document.getElementById('operation-time-form').style.display = 'none';
+                }
             } catch (error) {
                 displayError(error.message);
             }
@@ -71,6 +77,104 @@
             document.querySelectorAll('.region-button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
         }
+
+        async function fetchDustData() {
+            try {
+                const response = await fetch('/api/dust_forecast');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch dust data');
+                }
+
+                const data = await response.json();
+                displayDustData(data);
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function displayDustData(data) {
+            const resultDiv = document.getElementById('dust-results');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            // Table 생성
+            const table = document.createElement('table');
+            table.border = 1;
+
+            const headerRow = document.createElement('tr');
+            const headers = ['날짜', '지역', '미세먼지', '오존'];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            data.forEach(item => {
+                const dataRow = document.createElement('tr');
+
+                // 날짜 셀
+                const dateCell = document.createElement('td');
+                dateCell.textContent = item['date'];
+                dataRow.appendChild(dateCell);
+
+                // 지역 셀
+                const regionCell = document.createElement('td');
+                regionCell.textContent = item['region'];
+                dataRow.appendChild(regionCell);
+
+                // 미세먼지 셀
+                const pm10Cell = document.createElement('td');
+                pm10Cell.textContent = item['pm10'];
+                dataRow.appendChild(pm10Cell);
+
+                // 오존 셀
+                const ozoneCell = document.createElement('td');
+                ozoneCell.textContent = item['ozone'];
+                dataRow.appendChild(ozoneCell);
+
+                table.appendChild(dataRow);
+            });
+
+            resultDiv.appendChild(table);
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('dust-results');
+            resultDiv.innerHTML = `<p style="color: red;">Error: ${message}</p>`;
+        }
+
+        function reloadPage() {
+            location.reload();
+        }
+
+        async function updateOperationTime() {
+            const address = document.getElementById('address').value;
+            const startTime = document.getElementById('start-time').value;
+            const endTime = document.getElementById('end-time').value;
+            const operationTime = `${startTime} ~ ${endTime}`;
+
+            try {
+                const response = await fetch('/update_operation_time', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        address: address,
+                        operation_time: operationTime,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update operation time');
+                }
+
+                alert('Operation time updated successfully!');
+                reloadPage();
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
     </script>
 </head>
 <body>
@@ -105,9 +209,25 @@
             <button class="region-button" data-region="CBD" onclick="selectRegion(this)">충청북도</button>
         </div>
 
-        <button class="fetch-button" onclick="fetchData()">조회</button>
+        <!-- 전국 미세먼지 확인 버튼 추가 -->
+        <button class="fetch-button" onclick="fetchDustData()">전국 미세먼지 확인</button>
 
+        <button class="fetch-button" onclick="fetchData()">조회</button>
+        <button class="fetch-button" onclick="reloadPage()">새로고침</button> <!-- 새로고침 버튼 추가 -->
+
+        <!-- 운영시간 입력 폼 추가 -->
+        <div id="operation-time-form" style="display: none; margin-top: 20px;">
+            <h3>운영시간 입력하기</h3>
+            <label for="address">주소:</label>
+            <input type="text" id="address" name="address" required>
+            <label for="start-time">시작 시간:</label>
+            <input type="time" id="start-time" name="start-time" required>
+            <label for="end-time">종료 시간:</label>
+            <input type="time" id="end-time" name="end-time" required>
+            <button class="fetch-button" onclick="updateOperationTime()">운영시간 업데이트</button>
+        </div>
         <div id="results"></div>
+        <div id="dust-results"></div>
     </div>
 </body>
 </html>

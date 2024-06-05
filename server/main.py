@@ -172,6 +172,9 @@ import os
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from dust_api import get_dust_forecast
+from pydantic import BaseModel
+
 
 db_pw = os.getenv('DB_Project_PW')
 app = FastAPI()
@@ -256,7 +259,7 @@ async def get_selected_data(table_name: str = Form(...), region_code: str = Form
             params = (f"%{region}%",)  # 지역을 포함하는 패턴
         elif table_name == "Regional_Health_Institutions_Status":
             execute_query = """
-                SELECT [보건기관명], [대표 전화번호], [기관유형], [주소]
+                SELECT [보건기관명], [대표 전화번호], [기관유형], [주소], [운영시간]
                 FROM Regional_Health_Institutions_Status
                 WHERE [시도] LIKE ?
             """
@@ -280,6 +283,41 @@ async def get_selected_data(table_name: str = Form(...), region_code: str = Form
         raise HTTPException(status_code=500, detail=f"Query execution failed: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+@app.get("/api/dust_forecast", response_class=JSONResponse)
+async def api_dust_forecast():
+    data = get_dust_forecast()
+    return JSONResponse(content=data)
+
+# New route for updating operation time
+class OperationTimeUpdate(BaseModel):
+    address: str
+    operation_time: str
+
+@app.post("/update_operation_time", response_class=JSONResponse)
+async def update_operation_time(update: OperationTimeUpdate):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE Regional_Health_Institutions_Status
+            SET 운영시간 = ?
+            WHERE 주소 = ?
+            """,
+            (update.operation_time, update.address)
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Address not found")
+        return JSONResponse(content={"message": "Operation time updated successfully"})
+    except pyodbc.Error as e:
+        raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    finally:
+        conn.close()
+
 
 if __name__ == "__main__":
     import uvicorn
