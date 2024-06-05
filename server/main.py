@@ -1,18 +1,16 @@
 import pyodbc
-import os
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 
-db_pw = os.getenv('DB_Project_PW')
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 def get_db_connection():
-    server = 'localhost\SQLEXPRESS'  # 예: 'localhost\SQLEXPRESS'
-    database = 'projectDB'
+    server = 'projectdb.c5gsiqqsu08i.ap-northeast-2.rds.amazonaws.com'  # raw 문자열 사용
+    database = 'projectdb'
     username = 'Login'
-    password = db_pw
+    password = 'Yuyu6888!!'
     cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
                           f'SERVER={server};'
                           f'DATABASE={database};'
@@ -23,7 +21,6 @@ def get_db_connection():
 @app.get("/")
 async def root(request: Request):    
     message = "Nice 2 meet U"
-    message = db_pw
     body = "Ajou Univ Engineering Database Management"
     return templates.TemplateResponse("index.html", {"request": request, "message1": message, "message2": body})
 
