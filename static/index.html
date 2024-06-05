@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Table and Region</title>
+    <script>
+        async function fetchData(event) {
+            event.preventDefault();
+            const table_name = document.getElementById('table_name').value;
+            const region_code = document.getElementById('region_code').value;
+
+            try {
+                const response = await fetch('/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `table_name=${table_name}&region_code=${region_code}`,
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+
+                const result = await response.json();
+                displayData(result.columns, result.data);
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function displayData(columns, data) {
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            const table = document.createElement('table');
+            table.border = 1;
+
+            const headerRow = document.createElement('tr');
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            data.forEach(row => {
+                const dataRow = document.createElement('tr');
+                columns.forEach(column => {
+                    const td = document.createElement('td');
+                    td.textContent = row[column];
+                    dataRow.appendChild(td);
+                });
+                table.appendChild(dataRow);
+            });
+
+            resultDiv.appendChild(table);
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = `<p style="color: red;">Error: ${message}</p>`;
+        }
+    </script>
+</head>
+<body>
+    <h1>Select Table and Region</h1>
+    <form onsubmit="fetchData(event)">
+        <label for="table_name">Table:</label>
+        <select name="table_name" id="table_name">
+            <option value="Populations">Populations</option>
+            <option value="Careservices">Careservices</option>
+        </select>
+        <br><br>
+        <label for="region_code">Region:</label>
+        <select name="region_code" id="region_code">
+            <option value="GWD">강원도</option>
+            <option value="GGD">경기도</option>
+            <option value="GSD">경상남도</option>
+            <option value="GSB">경상북도</option>
+            <option value="GJW">광주광역시</option>
+            <option value="TGU">대구광역시</option>
+            <option value="DJN">대전광역시</option>
+            <option value="PUS">부산광역시</option>
+            <option value="SEL">서울특별시</option>
+            <option value="SJS">세종특별자치시</option>
+            <option value="USN">울산광역시</option>
+            <option value="ICN">인천광역시</option>
+            <option value="KOR">전국</option>
+            <option value="JND">전라남도</option>
+            <option value="JBD">전라북도</option>
+            <option value="JJU">제주특별자치도</option>
+            <option value="CND">충청남도</option>
+            <option value="CBD">충청북도</option>
+        </select>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="results"></div>
+</body>
+</html>
