@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Table and Region</title>
+    <link rel="stylesheet" href="/static/styles.css?v=3">
+    <script>
+        async function fetchData() {
+            const table_name = document.querySelector('.table-button.active').dataset.table;
+            const region_code = document.querySelector('.region-button.active').dataset.region;
+
+            try {
+                const response = await fetch('/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `table_name=${table_name}&region_code=${region_code}`,
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+
+                const result = await response.json();
+                displayData(result.columns, result.data);
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
+        function displayData(columns, data) {
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            const table = document.createElement('table');
+            table.border = 1;
+
+            const headerRow = document.createElement('tr');
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            data.forEach(row => {
+                const dataRow = document.createElement('tr');
+                columns.forEach(column => {
+                    const td = document.createElement('td');
+                    td.textContent = row[column];
+                    dataRow.appendChild(td);
+                });
+                table.appendChild(dataRow);
+            });
+
+            resultDiv.appendChild(table);
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = `<p style="color: red;">Error: ${message}</p>`;
+        }
+
+        function selectTable(button) {
+            document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+
+        function selectRegion(button) {
+            document.querySelectorAll('.region-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>8조 데이터베이스 기말과제</h1>
+        <h5>팀원: 임예원 송정환 허재석</h5>
+        
+        <div class="table-container">
+            <button class="table-button" data-table="Populations" onclick="selectTable(this)">지역별 인구</button>
+            <button class="table-button" data-table="Careservices" onclick="selectTable(this)">돌봄 서비스</button>
+            <button class="table-button" data-table="Senior_Employment" onclick="selectTable(this)">시니어 구직처</button>
+            <button class="table-button" data-table="Regional_Health_Institutions_Status" onclick="selectTable(this)">공공 보건시설</button>
+        </div>
+        
+        <div class="region-container">
+            <button class="region-button" data-region="GWD" onclick="selectRegion(this)">강원도</button>
+            <button class="region-button" data-region="GGD" onclick="selectRegion(this)">경기도</button>
+            <button class="region-button" data-region="GSD" onclick="selectRegion(this)">경상남도</button>
+            <button class="region-button" data-region="GSB" onclick="selectRegion(this)">경상북도</button>
+            <button class="region-button" data-region="GJW" onclick="selectRegion(this)">광주광역시</button>
+            <button class="region-button" data-region="TGU" onclick="selectRegion(this)">대구광역시</button>
+            <button class="region-button" data-region="DJN" onclick="selectRegion(this)">대전광역시</button>
+            <button class="region-button" data-region="PUS" onclick="selectRegion(this)">부산광역시</button>
+            <button class="region-button" data-region="SEL" onclick="selectRegion(this)">서울특별시</button>
+            <button class="region-button" data-region="SJS" onclick="selectRegion(this)">세종특별자치시</button>
+            <button class="region-button" data-region="USN" onclick="selectRegion(this)">울산광역시</button>
+            <button class="region-button" data-region="ICN" onclick="selectRegion(this)">인천광역시</button>
+            <button class="region-button" data-region="JND" onclick="selectRegion(this)">전라남도</button>
+            <button class="region-button" data-region="JBD" onclick="selectRegion(this)">전라북도</button>
+            <button class="region-button" data-region="JJU" onclick="selectRegion(this)">제주특별자치도</button>
+            <button class="region-button" data-region="CND" onclick="selectRegion(this)">충청남도</button>
+            <button class="region-button" data-region="CBD" onclick="selectRegion(this)">충청북도</button>
+        </div>
+
+        <button class="fetch-button" onclick="fetchData()">조회</button>
+
+        <div id="results"></div>
+    </div>
+</body>
+</html>

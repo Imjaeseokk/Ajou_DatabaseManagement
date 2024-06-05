@@ -1,0 +1,116 @@
+body {
+    max-width: 800px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff;
+    color: #333;
+    margin: 0 auto;
+    
+
+}
+
+.container {
+    background: #E4ECFA;
+    /* padding: 20px;
+    border-left: 2px solid #ddd; 
+    border-right: 2px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    text-align: center;
+    width: 50%; 
+    max-width: 800px; 
+    border-radius: 10px;  */
+}
+
+h1 {
+    color: #333;
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+h5 {
+    color: #666;
+    font-size: 1em;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.table-container, .region-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.table-button {
+    padding: 10px 15px;
+    background-color: #275efe;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    move-hover: -4px;
+}
+
+.region-button {
+    padding: 10px 20px;
+    background-color: #2F3545;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+}
+
+.table-button:hover, .table-button.active, 
+.region-button:hover, .region-button.active {
+    background-color: #0056b3;
+}
+
+.fetch-button {
+    padding: 10px 20px;
+    background-color: #fff;
+    color: #275efe;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    justify-content: center;
+}
+
+.fetch-button:hover {
+    background-color: #218838;
+}
+
+#results {
+    margin-top: 20px;
+    text-align: left;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 4.4em; /* 폰트 크기 줄이기 */
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+td {
+    background-color: #f9f9f9;
+}
