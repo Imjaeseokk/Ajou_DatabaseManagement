@@ -30,6 +30,13 @@
                 } else {
                     document.getElementById('operation-time-form').style.display = 'none';
                 }
+
+                if (table_name === 'Careservices') {
+                    document.getElementById('recommend-form').style.display = 'block';
+                } else {
+                    document.getElementById('recommend-form').style.display = 'none';
+                }
+
             } catch (error) {
                 displayError(error.message);
             }
@@ -147,6 +154,31 @@
             location.reload();
         }
 
+        async function recommendService() {
+            const institutionName = document.getElementById('institution-name').value;
+
+            try {
+                const response = await fetch('/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        institution_name: institutionName
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to recommend service');
+                }
+
+                alert('Service recommended successfully!');
+                reloadPage();
+            } catch (error) {
+                displayError(error.message);
+            }
+        }
+
         async function updateOperationTime() {
             const address = document.getElementById('address').value;
             const startTime = document.getElementById('start-time').value;
@@ -214,7 +246,14 @@
 
         <button class="fetch-button" onclick="fetchData()">조회</button>
         <button class="fetch-button" onclick="reloadPage()">새로고침</button> <!-- 새로고침 버튼 추가 -->
-
+        
+        
+        <div id="recommend-form" style="display: none; margin-top: 20px;">
+            <h3>돌봄 서비스 추천하기</h3>
+            <label for="institution-name">기관명:</label>
+            <input type="text" id="institution-name" name="institution-name" required>
+            <button class="fetch-button" onclick="recommendService()">추천</button>
+        </div>
         <!-- 운영시간 입력 폼 추가 -->
         <div id="operation-time-form" style="display: none; margin-top: 20px;">
             <h3>운영시간 입력하기</h3>

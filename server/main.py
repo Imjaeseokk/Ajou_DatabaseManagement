@@ -245,7 +245,7 @@ async def get_selected_data(table_name: str = Form(...), region_code: str = Form
             params = (f"%{region}%",)  # 지역을 포함하는 패턴
         elif table_name == "Careservices":
             execute_query = """
-                SELECT [시도], [시군구], [기관명], [주소], [시설유형구분]
+                SELECT [시도], [시군구], [기관명], [주소], [시설유형구분], [추천]
                 FROM Care_Services
                 WHERE [시도] LIKE ? OR [시군구] LIKE ?
             """
@@ -317,6 +317,98 @@ async def update_operation_time(update: OperationTimeUpdate):
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
     finally:
         conn.close()
+
+
+class Recommendation(BaseModel):
+    institution_name: str
+
+@app.post("/recommend", response_class=JSONResponse)
+async def recommend_service(recommendation: Recommendation):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE Care_Services
+            SET 추천 = ISNULL(추천, 0) + 1
+            WHERE 기관명 = ?
+            """,
+            (recommendation.institution_name,)
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Institution not found")
+        return JSONResponse(content={"message": "Recommendation added successfully"})
+    except pyodbc.Error as e:
+        print(f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
+    except Exception as e:
+        print(f"General error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    finally:
+        conn.close()
+# class User(BaseModel):
+#     user_name: str
+#     region: str
+#     feature: str
+
+# @app.post("/register_user", response_class=JSONResponse)
+# async def register_user(user: User):
+#     try:
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+
+#         query = """
+#             INSERT INTO UsersTable (User, Region, Function)
+#             VALUES (?, ?, ?)
+#             """
+#         params = (user.user_name, user.region, user.feature)
+#         print("Executing query:", query)
+#         print("With parameters:", params)
+        
+#         cursor.execute(query, params)
+#         conn.commit()
+
+#         return JSONResponse(content={"message": "User registered successfully"})
+#     except pyodbc.Error as e:
+#         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+#     finally:
+#         conn.close()
+
+# @app.get("/users", response_class=JSONResponse)
+# async def get_users():
+#     try:
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT User FROM UsersTable")
+#         users = cursor.fetchall()
+#         user_names = [user[0] for user in users]
+#         return JSONResponse(content=user_names)
+#     except pyodbc.Error as e:
+#         raise HTTPException(status_code=500, detail=f"Query execution failed: {str(e)}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+# @app.get("/users/{user_name}", response_class=JSONResponse)
+# async def get_user(user_name: str):
+#     try:
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+#         cursor.execute(
+#             "SELECT Region, Function FROM UsersTable WHERE User = ?", (user_name,)
+#         )
+#         user = cursor.fetchone()
+#         if user is None:
+#             raise HTTPException(status_code=404, detail="User not found")
+#         return JSONResponse(content={"region": user[0], "feature": user[1]})
+#     except pyodbc.Error as e:
+#         raise HTTPException(status_code=500, detail=f"Query execution failed: {str(e)}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+#     finally:
+#         conn.close()
 
 
 if __name__ == "__main__":
